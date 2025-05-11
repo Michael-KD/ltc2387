@@ -10,6 +10,7 @@ module ltc2387_tb;
     // Clock and reset
     reg sys_clk_int;
     reg reset_int;
+    reg data_clk_int;
 
     // ADC interface signals
     wire dco;
@@ -23,6 +24,8 @@ module ltc2387_tb;
     wire [17:0] adc_data_out;
     wire adc_data_valid;
     reg trig_int;
+
+
 
     // Instantiate the DUT (Device Under Test)
     ltc2387_interface #(
@@ -41,7 +44,7 @@ module ltc2387_tb;
         .trig_int(trig_int),
         .reset_int(reset_int),
         .sys_clk_int(sys_clk_int),
-        .data_clk_int(sys_clk_int) // Use sys_clk_int for simplicity
+        .data_clk_int(data_clk_int)
     );
 
     // Instantiate the virtual ADC
@@ -61,7 +64,12 @@ module ltc2387_tb;
     // Clock generation
     initial begin
         sys_clk_int = 0;
-        forever #2.5 sys_clk_int = ~sys_clk_int; // 200 MHz clock (5 ns period)
+        forever #0.3 sys_clk_int = ~sys_clk_int;
+    end
+
+    initial begin
+        data_clk_int = 0;
+        forever #12 data_clk_int = ~data_clk_int;
     end
 
     // Test stimulus
