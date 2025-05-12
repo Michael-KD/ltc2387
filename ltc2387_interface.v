@@ -2,7 +2,6 @@ module ltc2387_interface #(
     // Parameters 
     parameter ADC_WIDTH = 18,
     parameter SYS_CLK_FREQ = 200_000_000,
-    parameter T_FIRSTCLK = (65 * SYS_CLK_FREQ) / 1_000_000_000 // First clock high time in ns  
 )(
 
     // ADC interface
@@ -23,6 +22,8 @@ module ltc2387_interface #(
 
 
 );
+
+    localparam T_FIRSTCLK_CYCLES = (65 * SYS_CLK_FREQ) / 1_000_000_000 // First clock high time in ns  
 
 
     // FSM states
@@ -51,8 +52,6 @@ module ltc2387_interface #(
     reg [4:0] bit_cnt = 0;     // Bit counter for 9 bits per lane
     reg [2:0] lat_cnt = 0;     // Latency counter for conversion delay
 
-
-    assign bit_cnt_out = bit_cnt; // Output the current bit count for debugging
 
     // FSM, IDLE -> WAIT_LAT -> CAPTURE -> IDLE
     always @(posedge sys_clk_int or posedge reset_int) begin
@@ -89,7 +88,7 @@ module ltc2387_interface #(
                 WAIT_LAT: begin
                     cnv <= 0;
                     lat_cnt <= lat_cnt + 1;
-                    if (lat_cnt == T_FIRSTCLK) begin // Wait for ADC latency
+                    if (lat_cnt == T_FIRSTCLK_CYCLES) begin // Wait for ADC latency
                         state <= CAPTURE;
                         clk_en <= 1; // Enable clock for data capture
                         bit_cnt <= 2;
